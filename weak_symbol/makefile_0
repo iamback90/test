@@ -1,0 +1,19 @@
+all: fast slow
+
+fast: main.o fast_power.o slow_power.o
+	gcc main.o fast_power.o slow_power.o -o fast
+
+slow: main.o slow_power.o
+	gcc main.o slow_power.o -o slow
+
+fast_power.o: fast_power.c
+	gcc fast_power.c -c -o fast_power.o
+
+slow_power.o: slow_power.c slow_power.h
+	gcc slow_power.c -c -o slow_power.o
+
+main.o: main.c slow_power.h
+	gcc main.c -c -o main.o
+
+clean:
+	rm -rf *.o fast slow *.so *.a

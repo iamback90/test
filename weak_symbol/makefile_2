@@ -1,0 +1,26 @@
+all: fast slow
+
+fast: main.o libslow_power.a libfast_power.a
+	#gcc main.o -o fast -L. -lfast_power -lslow_power
+	gcc main.o -o fast -Wl,-whole-archive -L. -lslow_power -lfast_power -Wl,-no-whole-archive
+
+slow: main.o libslow_power.a
+	gcc main.o -o slow -L. -lslow_power
+
+libslow_power.a: slow_power.o
+	ar -cvr libslow_power.a slow_power.o
+
+libfast_power.a: fast_power.o
+	ar -cvr libfast_power.a fast_power.o
+
+fast_power.o: fast_power.c
+	gcc -fPIC fast_power.c -c -o fast_power.o
+
+slow_power.o: slow_power.c slow_power.h
+	gcc -fPIC slow_power.c -c -o slow_power.o
+
+main.o: main.c slow_power.h
+	gcc main.c -c -o main.o
+
+clean:
+	rm -rf *.o fast slow *.so *.a

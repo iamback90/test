@@ -1,0 +1,26 @@
+all: fast slow
+
+fast: main.o libslow_power.so libfast_power.so
+	#gcc main.o -o fast -L. -lfast_power -lslow_power -Wl,-rpath,\$$ORIGIN
+	gcc main.o -o fast -L. -lslow_power -lfast_power -Wl,-rpath,\$$ORIGIN
+
+slow: main.o libslow_power.so
+	gcc main.o -o slow -L. -lslow_power -Wl,-rpath,\$$ORIGIN
+
+libslow_power.so: slow_power.o
+	gcc -shared slow_power.o -o libslow_power.so
+
+libfast_power.so: fast_power.o
+	gcc -shared fast_power.o -o libfast_power.so
+
+fast_power.o: fast_power.c
+	gcc -fPIC fast_power.c -c -o fast_power.o
+
+slow_power.o: slow_power.c slow_power.h
+	gcc -fPIC slow_power.c -c -o slow_power.o
+
+main.o: main.c slow_power.h
+	gcc main.c -c -o main.o
+
+clean:
+	rm -rf *.o fast slow *.so *.a
